@@ -121,10 +121,15 @@ NumeralA -> Numeral | E .
 
 BooleanSymbol -> false | true .
 
+/* These are the things that cause some ambiguity I think. */
+ConstantName -> Name .
+VariableName -> Name .
+ProcedureName -> Name .
+
 /* Name -> Letter { Letter | Digit | underscore } . */
 Name -> Letter NameA .
 NameA -> Letter NameA | Digit NameA | underscore NameA | E . 
 
-Digit -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 .
-Letter -> a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z . /* obviously also capital letters in the real language */
+Digit -> number .
+Letter -> letter .
 E -> .
