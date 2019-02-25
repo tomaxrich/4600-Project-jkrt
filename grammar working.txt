@@ -82,6 +82,8 @@ DoStatement -> do GuardedCommandList od .
 GuardedCommandList -> GuardedCommand GuardedCommandListA .
 GuardedCommandListA -> guard GuardedCommandList | E .
 
+GuardedCommand -> Expression arrow StatementPart .
+
 /* Expression -> PrimaryExpression { PrimaryOperator PrimaryExpression } . */
 Expression -> PrimaryExpression ExpressionA .
 ExpressionA -> PrimaryOperator PrimaryExpression | E . 
