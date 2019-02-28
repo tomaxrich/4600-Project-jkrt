@@ -31,7 +31,10 @@ Token* Scanner::getToken()
 	Token* tokenToReturn;
 	if (inputfileptr->eof())
 	{
-		return nullptr;
+	   Symbol sym = SYM_EOF;
+	   tokenToReturn = new SymToken(sym);
+	   return tokenToReturn;
+		//return nullptr;
 	}
 
 	char current = (char)inputfileptr->peek();
@@ -273,11 +276,11 @@ Token* Scanner::recognizeSpecial()
 	}
 	else if (current == '(')
 	{
-		sym = SYM_LEFTBRACKET;
+		sym = SYM_LEFTPAREN;
 	}
 	else if (current == ')')
 	{
-		sym = SYM_RIGHTBRACKET;
+		sym = SYM_RIGHTPAREN;
 	}
 	else if (current == ':' && laChar == '=')
 	{

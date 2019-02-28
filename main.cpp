@@ -7,39 +7,71 @@
 #include "Administration.h"
 #include "Token.h"
 #include "Scanner.h"
+#include "Parser.h"
 
 using namespace std;
 
-int main(int argc, char* argv[]){
-   cout << "Welcome to Our 4600 compiler!\n";
+//int main(int argc, char* argv[]){
+//   cout << "Welcome to Our 4600 compiler!\n";
+//
+//   ifstream ifs;
+//   ofstream ofs;
+//
+//   if(argc != 3){
+//    cout << "Correct usage : ./plc inputFile outputFile \nExiting\n.";
+//    return 0;
+//   }
+//
+//   cout << "input from : " << argv[1] << "  output to : " << argv[2] << "\n";
+//
+//   ofs.open(argv[2], ofstream::out);
+//
+//   ifs.open(argv[1], ifstream::in);
+//
+//   SymbolTable symtab;
+//
+//   Scanner sc(ifs, symtab);
+//
+//   Administration compiler(ifs, ofs, sc);
+//
+//   if(compiler.scan() != 0){
+//	cout << "\nScanning error, exiting.\n";
+//   }
+//
+//   cout << "Total Line count " << compiler.getLinecount() << '\n';
+//
+//   cout << "done scanning\n";
+//
+//return 0;
+//}
 
-   ifstream ifs;
-   ofstream ofs;
+int main(int argc, char* argv[])
+{
 
-   if(argc != 3){
-    cout << "Correct usage : ./plc inputFile outputFile \nExiting\n.";
-    return 0;
-   }
+    cout << "PARSER TESTING \n";
 
-   cout << "input from : " << argv[1] << "  output to : " << argv[2] << "\n";
+    ifstream ifs;
+    ofstream ofs;
 
-   ofs.open(argv[2], ofstream::out);
+    if(argc != 3)
+    {
+        cout << "Correct usage : ./plc inputFile outputFile \nExiting\n.";
+        return 0;
+    }
 
-   ifs.open(argv[1], ifstream::in);
+    cout << "input from : " << argv[1] << "  output to : " << argv[2] << "\n";
+    ofs.open(argv[2], ofstream::out);
+    ifs.open(argv[1], ifstream::in);
 
-   SymbolTable symtab;
+    SymbolTable symtab;
+    Scanner sc(ifs, symtab);
+    //Administration compiler(ifs, ofs, sc);
+    Parser pa(sc);
 
-   Scanner sc(ifs, symtab);
+    if(pa.parse() == 1)
+        cout << "Error in parsing" << endl;
+    else
+        cout << "Parsing completed successfully" << endl;
 
-   Administration compiler(ifs, ofs, sc);
-
-   if(compiler.scan() != 0){
-	cout << "\nScanning error, exiting.\n";
-   }
-
-   cout << "Total Line count " << compiler.getLinecount() << '\n';
-
-   cout << "done scanning\n";
-
-return 0;
+        return 0;
 }
