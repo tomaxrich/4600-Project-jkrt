@@ -57,7 +57,6 @@ int Parser::parse()
 
 //first set :  begin
 //follow set :  E
-//stop set :
 void Parser::Program()
 {
     cout << "Program\n";
@@ -69,7 +68,7 @@ void Parser::Program()
     else
     {
         Error();
-        return;
+        //return;
     }
 
     if(laToken->getSymbolName() == SYM_PERIOD)
@@ -77,7 +76,7 @@ void Parser::Program()
     else
     {
         Error();
-        return;
+        //return;
     }
 }
 
@@ -125,13 +124,13 @@ void Parser::Block()
         else
         {
             Error();
-            return;
+            //return;
         }
     }
     else
     {
         Error();
-        return;
+        //return;
     }
 
 }
@@ -161,7 +160,7 @@ void Parser::DefinitionPart()
         return;
     default:
         Error();
-        return;
+        //return;
     }
 
     if(laToken->getSymbolName() == SYM_SEMICOLON)
@@ -172,9 +171,10 @@ void Parser::DefinitionPart()
     else
     {
         Error();
-        return;
+        //return;
     }
 
+    DefinitionPart();
 }
 
 //first set :  skip read write call if do letter
@@ -200,7 +200,7 @@ void Parser::StatementPart()
         return;
     default:
         Error();
-        return;
+        //return;
     }
 
     if(laToken->getSymbolName() == SYM_SEMICOLON)
@@ -211,8 +211,9 @@ void Parser::StatementPart()
     else
     {
         Error();
-        return;
+        //return;
     }
+
 }
 
 //first set :  const proc integer Boolean
@@ -224,19 +225,23 @@ void Parser::Definition()
     {
     case KW_CONST:
         ConstantDefinition();
-        break;
+        return;
     case KW_INTEGER:
     case KW_BOOLEAN:
         VariableDefinition();
-        break;
+        return;
     case KW_PROC:
         ProcedureDefinition();
-        break;
-    default:
-        Error();
         return;
+    case SYM_SEMICOLON:
+        return;
+    default:
+        cout << "DEFN ERROR";
+        Error();
         break;
     }
+
+    Definition();
 }
 
 //first set :  const
@@ -252,7 +257,7 @@ void Parser::ConstantDefinition()
     else
     {
         Error();
-        return;
+        //return;
     }
     //const name
     if(laToken->getSymbolName() == ID)
@@ -262,7 +267,7 @@ void Parser::ConstantDefinition()
     else
     {
         Error();
-        return;
+        //return;
     }
 
     //equals
@@ -273,7 +278,7 @@ void Parser::ConstantDefinition()
     else
     {
         Error();
-        return;
+        //return;
     }
 
     //constant
@@ -287,7 +292,7 @@ void Parser::ConstantDefinition()
         break;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -304,7 +309,7 @@ void Parser::VariableDefinition()
     else
     {
         Error();
-        return;
+        //return;
     }
     //variable definition A
     if(laToken->getSymbolName() == ID | laToken->getSymbolName() == KW_ARRAY)
@@ -314,7 +319,7 @@ void Parser::VariableDefinition()
     else
     {
         Error();
-        return;
+        //return;
     }
 }
 
@@ -338,7 +343,7 @@ void Parser::VariableDefinitionA()
         else
         {
             Error();
-            return;
+            //return;
         }
 
         if(laToken->getSymbolName() == SYM_LEFTSQUARE)
@@ -348,7 +353,7 @@ void Parser::VariableDefinitionA()
         else
         {
             Error();
-            return;
+            //return;
         }
 
         switch(laToken->getSymbolName())
@@ -361,7 +366,7 @@ void Parser::VariableDefinitionA()
             break;
         default:
             Error();
-            return;
+            //return;
             break;
         }
 
@@ -372,13 +377,13 @@ void Parser::VariableDefinitionA()
         else
         {
             Error();
-            return;
+            //return;
         }
     }
     else
     {
         Error();
-        return;
+        //return;
     }
 
 
@@ -394,7 +399,7 @@ void Parser::TypeSymbol()
         break;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -412,7 +417,7 @@ void Parser::VariableList()
         break;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -432,7 +437,7 @@ void Parser::VariableListA()
         return;
     default:
         Error();
-        return;
+        //return;
     }
 
 }
@@ -450,7 +455,7 @@ void Parser::ProcedureDefinition()
     else
     {
         Error();
-        return;
+        //return;
     }
 }
 
@@ -485,7 +490,7 @@ void Parser::Statement()
         break;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -501,7 +506,7 @@ void Parser::EmptyStatement()
     else
     {
         Error();
-        return;
+        //return;
     }
 
 }
@@ -520,7 +525,7 @@ void Parser::ReadStatement()
     else
     {
         Error();
-        return;
+        //return;
     }
 
 }
@@ -539,7 +544,7 @@ void Parser::WriteStatement()
     else
     {
         Error();
-        return;
+        //return;
     }
 }
 
@@ -556,7 +561,7 @@ void Parser::AssignmentStatement()
     else
     {
         Error();
-        return;
+        //return;
     }
     //assignment symbol
     if(laToken->getSymbolName() == SYM_ASSIGNMENT)
@@ -566,7 +571,7 @@ void Parser::AssignmentStatement()
     else
     {
         Error();
-        return;
+        //return;
     }
     //Expression - ( ~ false true number letter
     switch(laToken->getSymbolName())
@@ -581,7 +586,7 @@ void Parser::AssignmentStatement()
         break;
     default:
         Error();
-        return;
+        //return;
     }
 
 }
@@ -598,7 +603,7 @@ void Parser::ProcedureStatement()
     else
     {
         Error();
-        return;
+        //return;
     }
 
     if(laToken->getSymbolName() == ID)
@@ -608,7 +613,7 @@ void Parser::ProcedureStatement()
     else
     {
         Error();
-        return;
+        //return;
     }
 }
 
@@ -625,7 +630,7 @@ void Parser::IfStatement()
     else
     {
         Error();
-        return;
+        //return;
     }
     ///add checks for this (expression)
     GuardedCommmandList();
@@ -637,7 +642,7 @@ void Parser::IfStatement()
     else
     {
         Error();
-        return;
+        //return;
     }
 }
 
@@ -654,7 +659,7 @@ void Parser::DoStatement()
     else
     {
         Error();
-        return;
+        //return;
     }
 
     GuardedCommmandList();
@@ -666,7 +671,7 @@ void Parser::DoStatement()
     else
     {
         Error();
-        return;
+        //return;
     }
 }
 
@@ -684,7 +689,7 @@ void Parser::VariableAccessList()
     else
     {
         Error();
-        return;
+        //return;
     }
 
 
@@ -707,7 +712,7 @@ void Parser::VariableAccessListA()
         return;
     default:
         Error();
-        return;
+        //return;
 
     }
 
@@ -747,7 +752,7 @@ void Parser::ExpressionList()
         break;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -767,7 +772,7 @@ void Parser::ExpressionListA()
         return;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -792,12 +797,12 @@ void Parser::GuardedCommand()
         else
         {
             Error();
-            return;
+            //return;
         }
         break;
     default:
         Error();
-        return;
+        //return;
         break;
     }
 }
@@ -820,7 +825,7 @@ void Parser::GuardedCommmandList()
 		return;
 	default:
 		Error();
-		return;
+		//return;
     }
 
 }
@@ -842,7 +847,7 @@ void Parser::GuardedCommmandListA()
         return;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -866,7 +871,7 @@ void Parser::Expression()
         break;
     default:
         Error();
-        return;
+        //return;
         break;
     }
 }
@@ -892,7 +897,7 @@ void Parser::ExpressionA()
         return;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -909,7 +914,7 @@ void Parser::PrimaryOperator()
         break;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -933,7 +938,7 @@ void Parser::PrimaryExpression()
         break;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -961,7 +966,7 @@ void Parser::PrimaryExpressionA()
         return;
     default:
         Error();
-        return;
+        //return;
         break;
     }
 }
@@ -981,7 +986,7 @@ void Parser::RelationalOperator()
         break;
     default:
         Error();
-        return;
+        //return;
         break;
     }
 }
@@ -1030,7 +1035,7 @@ void Parser::SimpleExpressionA()
 		return;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -1061,7 +1066,7 @@ void Parser::SimpleExpressionB()
         return;
     default:
         Error();
-        return;
+        //return;
         break;
     }
 }
@@ -1080,7 +1085,7 @@ void Parser::AddingOperator()
         break;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -1103,7 +1108,7 @@ void Parser::Term()
         break;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -1136,7 +1141,7 @@ void Parser::TermA()
         return;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -1165,7 +1170,7 @@ void Parser::Factor()
         else
         {
             Error();
-            return;
+            //return;
         }
         break;
     case SYM_NOT:
@@ -1191,7 +1196,7 @@ void Parser::MultiplyingOperator()
         break;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -1213,7 +1218,7 @@ void Parser::IndexedSelector()
         else
         {
             Error();
-            return;
+            //return;
         }
         break;
     case SYM_MULTIPLY:
@@ -1235,7 +1240,7 @@ void Parser::IndexedSelector()
         return;
     default:
         Error();
-        return;
+        //return;
         break;
     }
 }
@@ -1259,7 +1264,7 @@ void Parser::Constant()
         break;
     default:
         Error();
-        return;
+        //return;
         break;
     }
 }
@@ -1278,7 +1283,7 @@ void Parser::BooleanSymbol()
         break;
     default:
         Error();
-        return;
+        //return;
     }
 }
 
@@ -1292,15 +1297,8 @@ void Parser::Numeral()
     else
     {
         Error();
-        return;
+        //return;
     }
-}
-
-//first set : number
-//follow set : * / \ + - < > = ^ | , ) ] ;
-void Parser::NumeralA()
-{
-    cout << "NumeralA \n";
 }
 
 //first set : letter
@@ -1352,19 +1350,18 @@ void Parser::Name()
     }
 }
 
-//first set : underscore letter number
-//follow set : * / \ + - < > = ^ | :=  , ) ] ;
-void Parser::NameA()
-{
-    cout << "NameA \n";
-}
 
 void Parser::Error()
 {
     cout << "\nError!!!" << endl;
+    laToken = scptr->getToken();
+    cout << "Got new token : " << SymbolTypeString[laToken->getSymbolName() - 256] << endl;
 }
 
+void Parser::Error(Symbol seen, Symbol expected)
+{
 
+}
 
 void Parser::match(Symbol sym)
 {
