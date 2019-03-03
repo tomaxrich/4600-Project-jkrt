@@ -15,6 +15,8 @@ class Parser
 
    private:
 
+   int errcount;
+
       void Program(); //start symbol
       void Block();
       void DefinitionPart();
@@ -41,8 +43,8 @@ class Parser
       void ExpressionList();
       void ExpressionListA();
       void GuardedCommand();
-      void GuardedCommmandList();
-      void GuardedCommmandListA();
+      void GuardedCommandList();
+      void GuardedCommandListA();
       void Expression();
       void ExpressionA();
       void PrimaryOperator();
@@ -69,6 +71,7 @@ class Parser
       void Name();
       void NameA();
       void Error();
+      void Error(Symbol seen, Symbol expecteds);
 
       void match(Symbol sym);
       //bool isMember();

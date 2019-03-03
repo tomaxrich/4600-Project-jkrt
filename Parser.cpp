@@ -1,6 +1,6 @@
 /****
 
-Author : Jesse Bevans
+Author : Jesse Bevans, Kevin Watchuk
 
 TODO : simplify logic : don't need to check that the symbol matches after entering a statement
     they should only be able to reach some statements if that symbol is already the lookahead, so double checking is redundant (but good for making sure we are correct in the first pass)
@@ -21,6 +21,7 @@ Parser::Parser(Scanner& sc)
     //ctor
     scptr = &sc;
     laToken = nullptr;
+    errcount = 0;
 }
 
 Parser::~Parser()
@@ -43,21 +44,14 @@ int Parser::parse()
     else if(laToken->getSymbolName() == SYM_EOF)
     {
         cout << "EOF\n";
-        return 0;
-    }
-    else
-    {
-        Error();
-        return 1;
+        return errcount;
     }
 
-
-    return 0;
+    return errcount;
 }
 
 //first set :  begin
 //follow set :  E
-//stop set :
 void Parser::Program()
 {
     cout << "Program\n";
@@ -68,16 +62,31 @@ void Parser::Program()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+            return;
+        default:
+
+            Error();
+            Program();
+        }
+
+
     }
 
     if(laToken->getSymbolName() == SYM_PERIOD)
         match(laToken->getSymbolName());
     else
     {
-        Error();
-        return;
+         switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+            return;
+        default:
+            Error();
+            Program();
+        }
     }
 }
 
@@ -124,14 +133,32 @@ void Parser::Block()
         }
         else
         {
-            Error();
+            switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        //case SYM_SEMICOLON :
+        case SYM_PERIOD :
             return;
+        default:
+            Error();
+            Block();
+
+        }
         }
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        //case SYM_SEMICOLON :
+        case SYM_PERIOD :
+            return;
+        default:
+            Error();
+            Block();
+
+        }
     }
 
 }
@@ -160,8 +187,24 @@ void Parser::DefinitionPart()
     case KW_END:
         return;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+            return;
+        default:
+            Error();
+            DefinitionPart();
+
+        }
     }
 
     if(laToken->getSymbolName() == SYM_SEMICOLON)
@@ -171,10 +214,25 @@ void Parser::DefinitionPart()
     }
     else
     {
-        Error();
-        return;
+         switch(laToken->getSymbolName())
+        {
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+            return;
+        default:
+            Error();
+            DefinitionPart();
+
+        }
     }
 
+    //DefinitionPart();
 }
 
 //first set :  skip read write call if do letter
@@ -199,8 +257,20 @@ void Parser::StatementPart()
     case KW_END:
         return;
     default:
-        Error();
-        return;
+         switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+            return;
+        default:
+            Error();
+            StatementPart();
+        }
     }
 
     if(laToken->getSymbolName() == SYM_SEMICOLON)
@@ -210,9 +280,22 @@ void Parser::StatementPart()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+            return;
+        default:
+            Error();
+            StatementPart();
+        }
     }
+
 }
 
 //first set :  const proc integer Boolean
@@ -224,19 +307,43 @@ void Parser::Definition()
     {
     case KW_CONST:
         ConstantDefinition();
-        break;
+        return;
     case KW_INTEGER:
     case KW_BOOLEAN:
         VariableDefinition();
-        break;
+        return;
     case KW_PROC:
         ProcedureDefinition();
-        break;
-    default:
-        Error();
         return;
+    case SYM_SEMICOLON:
+        return;
+    default:
+
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+            return;
+        default:
+            Error();
+            Definition();
+        }
         break;
     }
+
+    //Definition();
 }
 
 //first set :  const
@@ -251,8 +358,28 @@ void Parser::ConstantDefinition()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
+            return;
+        default:
+            Error();
+            ConstantDefinition();
+        }
     }
     //const name
     if(laToken->getSymbolName() == ID)
@@ -261,8 +388,28 @@ void Parser::ConstantDefinition()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
+            return;
+        default:
+            Error();
+            ConstantDefinition();
+        }
     }
 
     //equals
@@ -272,8 +419,28 @@ void Parser::ConstantDefinition()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
+            return;
+        default:
+            Error();
+            ConstantDefinition();
+        }
     }
 
     //constant
@@ -286,8 +453,28 @@ void Parser::ConstantDefinition()
         Constant();
         break;
     default:
-        Error();
-        return;
+       switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
+            return;
+        default:
+            Error();
+            ConstantDefinition();
+        }
     }
 }
 
@@ -301,21 +488,70 @@ void Parser::VariableDefinition()
     {
         TypeSymbol();
     }
-    else
-    {
-        Error();
-        return;
-    }
-    //variable definition A
-    if(laToken->getSymbolName() == ID | laToken->getSymbolName() == KW_ARRAY)
+    else if(laToken->getSymbolName() == ID | laToken->getSymbolName() == KW_ARRAY)
     {
         VariableDefinitionA();
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
+            return;
+        default:
+            Error();
+            VariableDefinition();
+        }
     }
+    if(laToken->getSymbolName() == KW_INTEGER | laToken->getSymbolName() == KW_BOOLEAN)
+    {
+        TypeSymbol();
+    }
+    else if(laToken->getSymbolName() == ID | laToken->getSymbolName() == KW_ARRAY)
+    {
+        VariableDefinitionA();
+    }
+    else
+    {
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
+            return;
+        default:
+            Error();
+            VariableDefinition();
+        }
+    }
+    //variable definition A
+
 }
 
 //first set :  array letter
@@ -337,8 +573,28 @@ void Parser::VariableDefinitionA()
         }
         else
         {
-            Error();
+            switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
             return;
+        default:
+            Error();
+            VariableDefinitionA();
+        }
         }
 
         if(laToken->getSymbolName() == SYM_LEFTSQUARE)
@@ -347,8 +603,28 @@ void Parser::VariableDefinitionA()
         }
         else
         {
-            Error();
+           switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
             return;
+        default:
+            Error();
+            VariableDefinitionA();
+        }
         }
 
         switch(laToken->getSymbolName())
@@ -360,8 +636,28 @@ void Parser::VariableDefinitionA()
             Constant();
             break;
         default:
-            Error();
+            switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
             return;
+        default:
+            Error();
+            VariableDefinitionA();
+        }
             break;
         }
 
@@ -371,19 +667,60 @@ void Parser::VariableDefinitionA()
         }
         else
         {
-            Error();
+            switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
             return;
+        default:
+            Error();
+            VariableDefinitionA();
+        }
         }
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
+            return;
+        default:
+            Error();
+            VariableDefinitionA();
+        }
     }
 
 
 }
-
+//first: integer, boolean
+//follow: array, letter
 void Parser::TypeSymbol()
 {
     switch(laToken->getSymbolName())
@@ -393,8 +730,29 @@ void Parser::TypeSymbol()
         match(laToken->getSymbolName());
         break;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
+        case KW_ARRAY:
+            return;
+        default:
+            Error();
+            TypeSymbol();
+        }
     }
 }
 
@@ -411,8 +769,30 @@ void Parser::VariableList()
         VariableListA();
         break;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
+        case SYM_ASSIGNMENT:
+        case SYM_LEFTSQUARE:
+            return;
+        default:
+            Error();
+            VariableList();
+        }
     }
 }
 
@@ -431,8 +811,30 @@ void Parser::VariableListA()
     case SYM_SEMICOLON:
         return;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
+        case SYM_ASSIGNMENT:
+        case SYM_LEFTSQUARE:
+            return;
+        default:
+            Error();
+            VariableListA();
+        }
     }
 
 }
@@ -449,8 +851,28 @@ void Parser::ProcedureDefinition()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+        ProcedureDefinition();
+        }
     }
 }
 
@@ -484,8 +906,21 @@ void Parser::Statement()
         AssignmentStatement();
         break;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            Statement();
+        }
     }
 }
 
@@ -500,8 +935,21 @@ void Parser::EmptyStatement()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            EmptyStatement();
+        }
     }
 
 }
@@ -519,8 +967,21 @@ void Parser::ReadStatement()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            ReadStatement();
+        }
     }
 
 }
@@ -538,8 +999,21 @@ void Parser::WriteStatement()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            WriteStatement();
+        }
     }
 }
 
@@ -555,8 +1029,21 @@ void Parser::AssignmentStatement()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            AssignmentStatement();
+        }
     }
     //assignment symbol
     if(laToken->getSymbolName() == SYM_ASSIGNMENT)
@@ -565,8 +1052,21 @@ void Parser::AssignmentStatement()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            AssignmentStatement();
+        }
     }
     //Expression - ( ~ false true number letter
     switch(laToken->getSymbolName())
@@ -580,8 +1080,21 @@ void Parser::AssignmentStatement()
         ExpressionList();
         break;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            AssignmentStatement();
+        }
     }
 
 }
@@ -597,8 +1110,21 @@ void Parser::ProcedureStatement()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            ProcedureStatement();
+        }
     }
 
     if(laToken->getSymbolName() == ID)
@@ -607,8 +1133,21 @@ void Parser::ProcedureStatement()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            ProcedureStatement();
+        }
     }
 }
 
@@ -624,11 +1163,24 @@ void Parser::IfStatement()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            IfStatement();
+        }
     }
     ///add checks for this (expression)
-    GuardedCommmandList();
+    GuardedCommandList();
 
     if(laToken->getSymbolName() == KW_FI)
     {
@@ -636,8 +1188,21 @@ void Parser::IfStatement()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            IfStatement();
+        }
     }
 }
 
@@ -653,11 +1218,24 @@ void Parser::DoStatement()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            DoStatement();
+        }
     }
 
-    GuardedCommmandList();
+    GuardedCommandList();
 
     if(laToken->getSymbolName() == KW_OD)
     {
@@ -665,8 +1243,21 @@ void Parser::DoStatement()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            DoStatement();
+        }
     }
 }
 
@@ -683,8 +1274,22 @@ void Parser::VariableAccessList()
     }
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_ASSIGNMENT:
+            return;
+        default:
+            Error();
+            VariableAccessList();
+        }
     }
 
 
@@ -700,14 +1305,28 @@ void Parser::VariableAccessListA()
     {
     case SYM_COMMA:
         match(laToken->getSymbolName());
-        VariableList();
+        VariableAccessList();
         break;
     case SYM_ASSIGNMENT:
     case SYM_SEMICOLON:
         return;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_ASSIGNMENT:
+            return;
+        default:
+            Error();
+            VariableAccessList();
+        }
 
     }
 
@@ -746,8 +1365,21 @@ void Parser::ExpressionList()
         ExpressionListA();
         break;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            ExpressionList();
+        }
     }
 }
 
@@ -766,8 +1398,21 @@ void Parser::ExpressionListA()
     case SYM_SEMICOLON:
         return;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            ExpressionListA();
+        }
     }
 }
 
@@ -791,43 +1436,82 @@ void Parser::GuardedCommand()
         }
         else
         {
-            Error();
+            switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
             return;
+        default:
+            Error();
+            GuardedCommand();
+        }
         }
         break;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            GuardedCommand();
+        }
         break;
     }
 }
 
 //first set : - ( ~ false true name
 //follow set : fi od
-void Parser::GuardedCommmandList()
+void Parser::GuardedCommandList()
 {
     cout << "GuardedCommandList \n";
 
     GuardedCommand();
-///
+
     switch(laToken->getSymbolName())
     {
 	case SYM_GUARD:
-		GuardedCommmandListA();
+		GuardedCommandListA();
 		break;
 	case KW_FI:
 	case KW_OD:
 		return;
 	default:
-		Error();
-		return;
+		switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            GuardedCommandList();
+        }
     }
 
 }
 
 //first set : []
 //follow set : fi od
-void Parser::GuardedCommmandListA()
+void Parser::GuardedCommandListA()
 {
     cout << "GuardedCommandListA \n";
 
@@ -835,14 +1519,27 @@ void Parser::GuardedCommmandListA()
     {
     case SYM_GUARD:
         match(laToken->getSymbolName());
-        GuardedCommmandList();
+        GuardedCommandList();
         break;
     case KW_FI:
     case KW_OD:
         return;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+            return;
+        default:
+            Error();
+            GuardedCommandListA();
+        }
     }
 }
 
@@ -865,8 +1562,24 @@ void Parser::Expression()
         ExpressionA();
         break;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+            return;
+        default:
+            Error();
+            Expression();
+        }
         break;
     }
 }
@@ -891,8 +1604,25 @@ void Parser::ExpressionA()
     case SYM_SEMICOLON:
         return;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTARROW:
+        case SYM_RIGHTSQUARE:
+            return;
+        default:
+            Error();
+            ExpressionA();
+        }
     }
 }
 
@@ -908,8 +1638,31 @@ void Parser::PrimaryOperator()
         match(laToken->getSymbolName());
         break;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+        case SYM_MINUS:
+        case SYM_LEFTPAREN:
+        case SYM_NOT:
+        case KW_FALSE:
+        case KW_TRUE:
+        case NUMERAL:
+        case ID:
+            return;
+        default:
+            Error();
+            PrimaryOperator();
+        }
     }
 }
 
@@ -932,8 +1685,27 @@ void Parser::PrimaryExpression()
         PrimaryExpressionA();
         break;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+        case SYM_AND:
+        case SYM_OR:
+
+            return;
+        default:
+            Error();
+            PrimaryExpression();
+        }
     }
 }
 
@@ -960,8 +1732,27 @@ void Parser::PrimaryExpressionA()
 	case SYM_RIGHTARROW:
         return;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+        case SYM_AND:
+        case SYM_OR:
+        case SYM_RIGHTARROW:
+            return;
+        default:
+            Error();
+            PrimaryExpressionA();
+        }
         break;
     }
 }
@@ -980,8 +1771,34 @@ void Parser::RelationalOperator()
         match(laToken->getSymbolName());
         break;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+        case SYM_AND:
+        case SYM_OR:
+        case SYM_RIGHTARROW:
+        case SYM_NOT:
+        case SYM_MINUS:
+        case KW_FALSE:
+        case KW_TRUE:
+        case NUMERAL:
+        case ID:
+        case SYM_LEFTPAREN:
+            return;
+        default:
+            Error();
+            RelationalOperator();
+        }
         break;
     }
 }
@@ -1029,8 +1846,30 @@ void Parser::SimpleExpressionA()
 	case SYM_RIGHTARROW:
 		return;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+        case SYM_AND:
+        case SYM_OR:
+        case SYM_RIGHTARROW:
+        case SYM_LESSTHAN:
+        case SYM_GREATERTHAN:
+        case SYM_EQUAL:
+            return;
+        default:
+            Error();
+            SimpleExpressionA();
+        }//follow set : < > = ^ | , ) ] ; ->
     }
 }
 
@@ -1060,8 +1899,30 @@ void Parser::SimpleExpressionB()
     case SYM_SEMICOLON:
         return;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+        case SYM_AND:
+        case SYM_OR:
+        case SYM_RIGHTARROW:
+        case SYM_LESSTHAN:
+        case SYM_GREATERTHAN:
+        case SYM_EQUAL:
+            return;
+        default:
+            Error();
+            SimpleExpressionB();
+        }
         break;
     }
 }
@@ -1079,9 +1940,33 @@ void Parser::AddingOperator()
         match(laToken->getSymbolName());
         break;
     default:
-        Error();
-        return;
-    }
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+        case SYM_AND:
+        case SYM_OR:
+        case SYM_RIGHTARROW:
+        case SYM_LESSTHAN:
+        case SYM_GREATERTHAN:
+        case SYM_EQUAL:
+        case SYM_PLUS:
+        case SYM_MINUS:
+            return;
+        default:
+            Error();
+            AddingOperator();
+        }
+    }//follow set : + - < > = ^ | , ) ] ;
 }
 
 //first set : ( ~ false true number letter
@@ -1102,8 +1987,32 @@ void Parser::Term()
         TermA();
         break;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+        case SYM_AND:
+        case SYM_OR:
+        case SYM_RIGHTARROW:
+        case SYM_LESSTHAN:
+        case SYM_GREATERTHAN:
+        case SYM_EQUAL:
+        case SYM_PLUS:
+        case SYM_MINUS:
+            return;
+        default:
+            Error();
+            Term();
+        }
     }
 }
 
@@ -1135,8 +2044,32 @@ void Parser::TermA()
     case SYM_SEMICOLON:
         return;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+        case SYM_AND:
+        case SYM_OR:
+        case SYM_RIGHTARROW:
+        case SYM_LESSTHAN:
+        case SYM_GREATERTHAN:
+        case SYM_EQUAL:
+        case SYM_PLUS:
+        case SYM_MINUS:
+            return;
+        default:
+            Error();
+            TermA();
+        }
     }
 }
 
@@ -1164,8 +2097,35 @@ void Parser::Factor()
             match(laToken->getSymbolName());
         else
         {
-            Error();
+            switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+        case SYM_AND:
+        case SYM_OR:
+        case SYM_RIGHTARROW:
+        case SYM_LESSTHAN:
+        case SYM_GREATERTHAN:
+        case SYM_EQUAL:
+        case SYM_PLUS:
+        case SYM_MINUS:
+        case SYM_MULTIPLY:
+        case SYM_DIVIDE:
+        case SYM_MODULO:
             return;
+        default:
+            Error();
+            Factor();
+        }
         }
         break;
     case SYM_NOT:
@@ -1190,8 +2150,38 @@ void Parser::MultiplyingOperator()
         match(laToken->getSymbolName());
         break;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+        case SYM_AND:
+        case SYM_OR:
+        case SYM_RIGHTARROW:
+        case SYM_LESSTHAN:
+        case SYM_GREATERTHAN:
+        case SYM_EQUAL:
+        case SYM_PLUS:
+        case SYM_MINUS:
+        case SYM_LEFTPAREN:
+        case SYM_NOT:
+        case KW_FALSE:
+        case KW_TRUE:
+        case NUMERAL:
+        case ID:
+            return;
+        default:
+            Error();
+            MultiplyingOperator();
+        }
     }
 }
 
@@ -1212,8 +2202,36 @@ void Parser::IndexedSelector()
         }
         else
         {
-            Error();
+            switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_ASSIGNMENT:
+        case SYM_MULTIPLY:
+        case SYM_DIVIDE:
+        case SYM_MODULO:
+        case SYM_PLUS:
+        case SYM_MINUS:
+        case SYM_LESSTHAN:
+        case SYM_GREATERTHAN:
+        case SYM_EQUAL:
+        case SYM_AND:
+        case SYM_OR:
+        case SYM_RIGHTARROW:
+        case SYM_RIGHTPAREN:
+        case SYM_RIGHTSQUARE:
+        case SYM_COMMA:
             return;
+        default:
+            Error();
+            IndexedSelector();
+        }
         }
         break;
     case SYM_MULTIPLY:
@@ -1234,9 +2252,36 @@ void Parser::IndexedSelector()
     case SYM_SEMICOLON:
         return;
     default:
-        Error();
-        return;
-        break;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_ASSIGNMENT:
+        case SYM_MULTIPLY:
+        case SYM_DIVIDE:
+        case SYM_MODULO:
+        case SYM_PLUS:
+        case SYM_MINUS:
+        case SYM_LESSTHAN:
+        case SYM_GREATERTHAN:
+        case SYM_EQUAL:
+        case SYM_AND:
+        case SYM_OR:
+        case SYM_RIGHTARROW:
+        case SYM_RIGHTPAREN:
+        case SYM_RIGHTSQUARE:
+        case SYM_COMMA:
+            return;
+        default:
+            Error();
+            IndexedSelector();
+        }
     }
 }
 
@@ -1258,9 +2303,35 @@ void Parser::Constant()
         ConstantName();
         break;
     default:
-        Error();
-        return;
-        break;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+        case SYM_AND:
+        case SYM_OR:
+        case SYM_RIGHTARROW:
+        case SYM_LESSTHAN:
+        case SYM_GREATERTHAN:
+        case SYM_EQUAL:
+        case SYM_PLUS:
+        case SYM_MINUS:
+        case SYM_MULTIPLY:
+        case SYM_DIVIDE:
+        case SYM_MODULO:
+            return;
+        default:
+            Error();
+            Constant();
+        }
     }
 }
 
@@ -1277,8 +2348,35 @@ void Parser::BooleanSymbol()
         match(laToken->getSymbolName());
         break;
     default:
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+        case SYM_AND:
+        case SYM_OR:
+        case SYM_RIGHTARROW:
+        case SYM_LESSTHAN:
+        case SYM_GREATERTHAN:
+        case SYM_EQUAL:
+        case SYM_PLUS:
+        case SYM_MINUS:
+        case SYM_MULTIPLY:
+        case SYM_DIVIDE:
+        case SYM_MODULO:
+            return;
+        default:
+            Error();
+            BooleanSymbol();
+        }
     }
 }
 
@@ -1291,16 +2389,36 @@ void Parser::Numeral()
         match(laToken->getSymbolName());
     else
     {
-        Error();
-        return;
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case SYM_GUARD :
+        case KW_FI :
+        case KW_IF:
+        case KW_OD:
+        case KW_END:
+        case SYM_SEMICOLON:
+        case SYM_RIGHTPAREN:
+        case SYM_COMMA:
+        case SYM_RIGHTSQUARE:
+        case SYM_AND:
+        case SYM_OR:
+        case SYM_RIGHTARROW:
+        case SYM_LESSTHAN:
+        case SYM_GREATERTHAN:
+        case SYM_EQUAL:
+        case SYM_PLUS:
+        case SYM_MINUS:
+        case SYM_MULTIPLY:
+        case SYM_DIVIDE:
+        case SYM_MODULO:
+            return;
+        default:
+            Error();
+            Numeral();
+        }
     }
-}
-
-//first set : number
-//follow set : * / \ + - < > = ^ | , ) ] ;
-void Parser::NumeralA()
-{
-    cout << "NumeralA \n";
 }
 
 //first set : letter
@@ -1352,19 +2470,29 @@ void Parser::Name()
     }
 }
 
-//first set : underscore letter number
-//follow set : * / \ + - < > = ^ | :=  , ) ] ;
-void Parser::NameA()
-{
-    cout << "NameA \n";
-}
 
 void Parser::Error()
 {
     cout << "\nError!!!" << endl;
+
+    errcount++;
+
+    laToken = scptr->getToken();
+    if (laToken == nullptr)
+    {
+        while(laToken == nullptr)
+        {
+            laToken = scptr->getToken();
+        }
+
+    }
+    cout << "Got new token : " << SymbolTypeString[laToken->getSymbolName() - 256] << endl;
 }
 
+void Parser::Error(Symbol seen, Symbol expected)
+{
 
+}
 
 void Parser::match(Symbol sym)
 {

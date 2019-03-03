@@ -67,9 +67,11 @@ int main(int argc, char* argv[])
     Scanner sc(ifs, symtab);
     //Administration compiler(ifs, ofs, sc);
     Parser pa(sc);
+    int parsecount;
+    parsecount = pa.parse();
 
-    if(pa.parse() == 1)
-        cout << "Error in parsing" << endl;
+    if(parsecount > 0)
+        cout << parsecount << " error(s) in parsing" << endl;
     else
         cout << "Parsing completed successfully" << endl;
 
