@@ -47,7 +47,15 @@ int Parser::parse()
         return errcount;
     }
 
+    //while(laToken->getSymbolName() != SYM_EOF)
+    //{
+    //if(laToken->getSymbolName() == SYM_EOF)
+  //  {
     return errcount;
+   // }
+  //  Error();
+  //  }
+
 }
 
 //first set :  begin
@@ -68,7 +76,7 @@ void Parser::Program()
             return;
         default:
 
-            Error();
+            Error(__func__, laToken->getSymbolName());
             Program();
         }
 
@@ -84,7 +92,7 @@ void Parser::Program()
         case SYM_EOF :
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             Program();
         }
     }
@@ -126,6 +134,7 @@ void Parser::Block()
         default:
             break;
         }
+
         //match end
         if(laToken->getSymbolName() == KW_END)
         {
@@ -138,9 +147,10 @@ void Parser::Block()
         case SYM_EOF :
         //case SYM_SEMICOLON :
         case SYM_PERIOD :
+            cout << laToken->getSymbolName() << " is in the stopset of " << __func__ << " returning up a level.";
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             Block();
 
         }
@@ -155,7 +165,7 @@ void Parser::Block()
         case SYM_PERIOD :
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             Block();
 
         }
@@ -201,7 +211,7 @@ void Parser::DefinitionPart()
         case KW_END:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             DefinitionPart();
 
         }
@@ -216,6 +226,8 @@ void Parser::DefinitionPart()
     {
          switch(laToken->getSymbolName())
         {
+        case SYM_EOF :
+        case SYM_PERIOD :
         case KW_SKIP :
         case KW_READ :
         case KW_WRITE:
@@ -226,7 +238,7 @@ void Parser::DefinitionPart()
         case KW_END:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             DefinitionPart();
 
         }
@@ -268,15 +280,19 @@ void Parser::StatementPart()
         case KW_END:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             StatementPart();
         }
     }
+    bool isgood = false;
+    while(isgood ==false)
+    {
 
     if(laToken->getSymbolName() == SYM_SEMICOLON)
     {
         match(laToken->getSymbolName());
         StatementPart();
+        isgood = true;
     }
     else
     {
@@ -290,10 +306,12 @@ void Parser::StatementPart()
         case KW_OD:
         case KW_END:
             return;
+            isgood = true;
         default:
-            Error();
-            StatementPart();
+            Error(__func__, laToken->getSymbolName());
+            //StatementPart();
         }
+    }
     }
 
 }
@@ -337,7 +355,7 @@ void Parser::Definition()
         case KW_BOOLEAN:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             Definition();
         }
         break;
@@ -352,9 +370,15 @@ void Parser::ConstantDefinition()
 {
     cout << "ConstantDefinition\n";
     //const
+    bool isgood = false;
+    while(isgood == false)
+    {
+
+
     if(laToken->getSymbolName() == KW_CONST)
     {
         match(laToken->getSymbolName());
+        isgood = true;
     }
     else
     {
@@ -376,15 +400,22 @@ void Parser::ConstantDefinition()
         case KW_BOOLEAN:
         case SYM_SEMICOLON :
             return;
+            isgood=true;
         default:
-            Error();
-            ConstantDefinition();
+            Error(__func__, laToken->getSymbolName());
+            //ConstantDefinition();
         }
     }
+    }
+
     //const name
+    isgood = false;
+    while(isgood == false)
+    {
     if(laToken->getSymbolName() == ID)
     {
         ConstantName();
+        isgood=true;
     }
     else
     {
@@ -406,16 +437,23 @@ void Parser::ConstantDefinition()
         case KW_BOOLEAN:
         case SYM_SEMICOLON :
             return;
+            isgood = true;
         default:
-            Error();
-            ConstantDefinition();
+            Error(__func__, laToken->getSymbolName());
+            //ConstantDefinition();
         }
     }
+    }
 
+    isgood = false;
     //equals
+    while(isgood == false)
+    {
+
     if(laToken->getSymbolName() == SYM_EQUAL)
     {
         match(laToken->getSymbolName());
+        isgood = true;
     }
     else
     {
@@ -438,12 +476,15 @@ void Parser::ConstantDefinition()
         case SYM_SEMICOLON :
             return;
         default:
-            Error();
-            ConstantDefinition();
+            Error(__func__, laToken->getSymbolName());
+            //ConstantDefinition();
         }
     }
-
+    }
     //constant
+    isgood = false;
+    while(isgood == false)
+    {
     switch(laToken->getSymbolName())
     {
     case NUMERAL:
@@ -451,6 +492,7 @@ void Parser::ConstantDefinition()
     case KW_TRUE:
     case ID:
         Constant();
+        isgood = true;
         break;
     default:
        switch(laToken->getSymbolName())
@@ -471,10 +513,12 @@ void Parser::ConstantDefinition()
         case KW_BOOLEAN:
         case SYM_SEMICOLON :
             return;
+            isgood = true;
         default:
-            Error();
-            ConstantDefinition();
+            Error(__func__, laToken->getSymbolName());
+            //ConstantDefinition();
         }
+    }
     }
 }
 
@@ -484,12 +528,49 @@ void Parser::VariableDefinition()
 {
     cout << "VariableDefinition\n";
     //type symbol
+    bool isgood = false;
+    while(isgood == false)
+    {
+
     if(laToken->getSymbolName() == KW_INTEGER | laToken->getSymbolName() == KW_BOOLEAN)
     {
         TypeSymbol();
+        isgood = true;
     }
-    else if(laToken->getSymbolName() == ID | laToken->getSymbolName() == KW_ARRAY)
+    else
     {
+        switch(laToken->getSymbolName())
+        {
+        case SYM_EOF :
+        case SYM_PERIOD :
+        case KW_SKIP :
+        case KW_READ :
+        case KW_WRITE:
+        case KW_CALL:
+        case KW_IF:
+        case KW_DO:
+        case ID:
+        case KW_END:
+        case KW_CONST :
+        case KW_PROC :
+        case KW_INTEGER:
+        case KW_BOOLEAN:
+        case SYM_SEMICOLON :
+            isgood= true;
+            return;
+        default:
+            Error(__func__, laToken->getSymbolName());
+            //VariableDefinition();
+        }
+    }
+    }
+    isgood = false;
+    while(isgood == false)
+    {
+
+   if(laToken->getSymbolName() == ID | laToken->getSymbolName() == KW_ARRAY)
+    {
+        isgood = true;
         VariableDefinitionA();
     }
     else
@@ -512,43 +593,12 @@ void Parser::VariableDefinition()
         case KW_BOOLEAN:
         case SYM_SEMICOLON :
             return;
+            isgood = true;
         default:
-            Error();
-            VariableDefinition();
+            Error(__func__, laToken->getSymbolName());
+            //VariableDefinition();
         }
     }
-    if(laToken->getSymbolName() == KW_INTEGER | laToken->getSymbolName() == KW_BOOLEAN)
-    {
-        TypeSymbol();
-    }
-    else if(laToken->getSymbolName() == ID | laToken->getSymbolName() == KW_ARRAY)
-    {
-        VariableDefinitionA();
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
-        {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case KW_SKIP :
-        case KW_READ :
-        case KW_WRITE:
-        case KW_CALL:
-        case KW_IF:
-        case KW_DO:
-        case ID:
-        case KW_END:
-        case KW_CONST :
-        case KW_PROC :
-        case KW_INTEGER:
-        case KW_BOOLEAN:
-        case SYM_SEMICOLON :
-            return;
-        default:
-            Error();
-            VariableDefinition();
-        }
     }
     //variable definition A
 
@@ -559,6 +609,9 @@ void Parser::VariableDefinition()
 void Parser::VariableDefinitionA()
 {
     cout << "VariableDefinitionA\n";
+    bool isgood = false;
+
+
     if(laToken->getSymbolName() == ID)
     {
         VariableList();
@@ -567,9 +620,14 @@ void Parser::VariableDefinitionA()
     else if(laToken->getSymbolName() == KW_ARRAY)
     {
         match(laToken->getSymbolName());
+
+        while(isgood == false)
+        {
+
         if(laToken->getSymbolName() == ID)
         {
             VariableList();
+            isgood=true;
         }
         else
         {
@@ -591,15 +649,21 @@ void Parser::VariableDefinitionA()
         case KW_BOOLEAN:
         case SYM_SEMICOLON :
             return;
+            isgood = true;
         default:
-            Error();
-            VariableDefinitionA();
+            Error(__func__, laToken->getSymbolName());
+            //VariableDefinitionA();
         }
         }
+        }
+        isgood = false;
+        while(isgood == false)
+        {
 
         if(laToken->getSymbolName() == SYM_LEFTSQUARE)
         {
             match(laToken->getSymbolName());
+            isgood=true;
         }
         else
         {
@@ -621,11 +685,16 @@ void Parser::VariableDefinitionA()
         case KW_BOOLEAN:
         case SYM_SEMICOLON :
             return;
+            isgood = true;
         default:
-            Error();
-            VariableDefinitionA();
+            Error(__func__, laToken->getSymbolName());
+            //VariableDefinitionA();
         }
         }
+        }
+        isgood= false;
+        while(isgood==false)
+        {
 
         switch(laToken->getSymbolName())
         {
@@ -634,6 +703,7 @@ void Parser::VariableDefinitionA()
         case KW_FALSE:
         case ID:
             Constant();
+            isgood = true;
             break;
         default:
             switch(laToken->getSymbolName())
@@ -654,16 +724,21 @@ void Parser::VariableDefinitionA()
         case KW_BOOLEAN:
         case SYM_SEMICOLON :
             return;
+            isgood = true;
         default:
-            Error();
-            VariableDefinitionA();
+            Error(__func__, laToken->getSymbolName());
+            //VariableDefinitionA();
         }
             break;
         }
-
+        }
+        isgood= false;
+        while(isgood==false)
+        {
         if(laToken->getSymbolName() == SYM_RIGHTSQUARE)
         {
             match(laToken->getSymbolName());
+            isgood = true;
         }
         else
         {
@@ -685,9 +760,11 @@ void Parser::VariableDefinitionA()
         case KW_BOOLEAN:
         case SYM_SEMICOLON :
             return;
+            isgood=true;
         default:
-            Error();
-            VariableDefinitionA();
+            Error(__func__, laToken->getSymbolName());
+            //VariableDefinitionA();
+        }
         }
         }
     }
@@ -712,7 +789,7 @@ void Parser::VariableDefinitionA()
         case SYM_SEMICOLON :
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             VariableDefinitionA();
         }
     }
@@ -750,7 +827,7 @@ void Parser::TypeSymbol()
         case KW_ARRAY:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             TypeSymbol();
         }
     }
@@ -790,7 +867,7 @@ void Parser::VariableList()
         case SYM_LEFTSQUARE:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             VariableList();
         }
     }
@@ -832,7 +909,7 @@ void Parser::VariableListA()
         case SYM_LEFTSQUARE:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             VariableListA();
         }
     }
@@ -870,7 +947,7 @@ void Parser::ProcedureDefinition()
         case SYM_SEMICOLON:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
         ProcedureDefinition();
         }
     }
@@ -918,7 +995,7 @@ void Parser::Statement()
         case SYM_SEMICOLON:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             Statement();
         }
     }
@@ -947,7 +1024,7 @@ void Parser::EmptyStatement()
         case SYM_SEMICOLON:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             EmptyStatement();
         }
     }
@@ -979,7 +1056,7 @@ void Parser::ReadStatement()
         case SYM_SEMICOLON:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             ReadStatement();
         }
     }
@@ -1011,7 +1088,7 @@ void Parser::WriteStatement()
         case SYM_SEMICOLON:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             WriteStatement();
         }
     }
@@ -1023,9 +1100,14 @@ void Parser::AssignmentStatement()
 {
     cout << "AssignmentStatement  \n";
     //variable access list
+    bool isgood= false;
+    while(isgood==false)
+    {
+
     if(laToken->getSymbolName() == ID)
     {
         VariableAccessList();
+        isgood=true;
     }
     else
     {
@@ -1040,15 +1122,22 @@ void Parser::AssignmentStatement()
         case KW_END:
         case SYM_SEMICOLON:
             return;
+            isgood=true;
         default:
-            Error();
-            AssignmentStatement();
+            Error(__func__, laToken->getSymbolName());
+            //AssignmentStatement();
         }
     }
+    }
     //assignment symbol
+    isgood = false;
+    while(isgood == false)
+    {
+
     if(laToken->getSymbolName() == SYM_ASSIGNMENT)
     {
         match(laToken->getSymbolName());
+        isgood = true;
     }
     else
     {
@@ -1063,12 +1152,18 @@ void Parser::AssignmentStatement()
         case KW_END:
         case SYM_SEMICOLON:
             return;
+            isgood = true;
         default:
-            Error();
-            AssignmentStatement();
+            Error(__func__, laToken->getSymbolName());
+            //AssignmentStatement();
         }
     }
+    }
     //Expression - ( ~ false true number letter
+    isgood = false;
+    while(isgood == false)
+    {
+
     switch(laToken->getSymbolName())
     {
     case SYM_MINUS:
@@ -1078,6 +1173,7 @@ void Parser::AssignmentStatement()
     case NUMERAL:
     case ID:
         ExpressionList();
+        isgood=true;
         break;
     default:
         switch(laToken->getSymbolName())
@@ -1092,9 +1188,10 @@ void Parser::AssignmentStatement()
         case SYM_SEMICOLON:
             return;
         default:
-            Error();
-            AssignmentStatement();
+            Error(__func__, laToken->getSymbolName());
+            //AssignmentStatement();
         }
+    }
     }
 
 }
@@ -1104,9 +1201,14 @@ void Parser::AssignmentStatement()
 void Parser::ProcedureStatement()
 {
     cout << "ProcedureStatement\n";
+    bool isgood = false;
+    while(isgood == false)
+    {
+
     if(laToken->getSymbolName() == KW_CALL)
     {
         match(laToken->getSymbolName());
+        isgood = true;
     }
     else
     {
@@ -1121,15 +1223,21 @@ void Parser::ProcedureStatement()
         case KW_END:
         case SYM_SEMICOLON:
             return;
+            isgood = true;
         default:
-            Error();
-            ProcedureStatement();
+            Error(__func__, laToken->getSymbolName());
+     //       ProcedureStatement();
         }
     }
+    }
+    isgood = false;
+    while(isgood == false)
+    {
 
     if(laToken->getSymbolName() == ID)
     {
         ProcedureName();
+        isgood = true;
     }
     else
     {
@@ -1145,9 +1253,10 @@ void Parser::ProcedureStatement()
         case SYM_SEMICOLON:
             return;
         default:
-            Error();
-            ProcedureStatement();
+            Error(__func__, laToken->getSymbolName());
+            //ProcedureStatement();
         }
+    }
     }
 }
 
@@ -1156,10 +1265,14 @@ void Parser::ProcedureStatement()
 void Parser::IfStatement()
 {
     cout << "IfStatement\n";
+    bool isgood = false;
+    while(isgood == false)
+    {
 
     if(laToken->getSymbolName() == KW_IF)
     {
         match(laToken->getSymbolName());
+        isgood = true;
     }
     else
     {
@@ -1174,17 +1287,23 @@ void Parser::IfStatement()
         case KW_END:
         case SYM_SEMICOLON:
             return;
+            isgood = true;
         default:
-            Error();
-            IfStatement();
+            Error(__func__, laToken->getSymbolName());
+     //       IfStatement();
         }
+    }
     }
     ///add checks for this (expression)
     GuardedCommandList();
+    isgood = false;
+    while(isgood == false)
+    {
 
     if(laToken->getSymbolName() == KW_FI)
     {
         match(laToken->getSymbolName());
+        isgood = true;
     }
     else
     {
@@ -1199,10 +1318,12 @@ void Parser::IfStatement()
         case KW_END:
         case SYM_SEMICOLON:
             return;
+            isgood = true;
         default:
-            Error();
-            IfStatement();
+            Error(__func__, laToken->getSymbolName());
+            //IfStatement();
         }
+    }
     }
 }
 
@@ -1211,10 +1332,14 @@ void Parser::IfStatement()
 void Parser::DoStatement()
 {
     cout << "DoStatement\n";
+    bool isgood = false;
+    while(isgood == false)
+    {
 
     if(laToken->getSymbolName() == KW_DO)
     {
         match(laToken->getSymbolName());
+        isgood = true;
     }
     else
     {
@@ -1229,17 +1354,24 @@ void Parser::DoStatement()
         case KW_END:
         case SYM_SEMICOLON:
             return;
+            isgood=true;
         default:
-            Error();
-            DoStatement();
+            Error(__func__, laToken->getSymbolName());
+           // DoStatement();
         }
+    }
     }
 
     GuardedCommandList();
 
+    isgood = false;
+    while(isgood == false)
+    {
+
     if(laToken->getSymbolName() == KW_OD)
     {
         match(laToken->getSymbolName());
+        isgood=true;
     }
     else
     {
@@ -1254,10 +1386,12 @@ void Parser::DoStatement()
         case KW_END:
         case SYM_SEMICOLON:
             return;
+            isgood=true;
         default:
-            Error();
-            DoStatement();
+            Error(__func__, laToken->getSymbolName());
+           // DoStatement();
         }
+    }
     }
 }
 
@@ -1287,7 +1421,7 @@ void Parser::VariableAccessList()
         case SYM_ASSIGNMENT:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             VariableAccessList();
         }
     }
@@ -1324,8 +1458,8 @@ void Parser::VariableAccessListA()
         case SYM_ASSIGNMENT:
             return;
         default:
-            Error();
-            VariableAccessList();
+            Error(__func__, laToken->getSymbolName());
+            VariableAccessListA();
         }
 
     }
@@ -1377,7 +1511,7 @@ void Parser::ExpressionList()
         case SYM_SEMICOLON:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             ExpressionList();
         }
     }
@@ -1410,7 +1544,7 @@ void Parser::ExpressionListA()
         case SYM_SEMICOLON:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             ExpressionListA();
         }
     }
@@ -1420,6 +1554,8 @@ void Parser::ExpressionListA()
 //follow set: guard fi od
 void Parser::GuardedCommand()
 {
+    cout << "Guarded Commmand\n";
+    bool isgood = false;
     switch(laToken->getSymbolName())
     {
     case SYM_MINUS:
@@ -1429,10 +1565,14 @@ void Parser::GuardedCommand()
     case KW_FALSE:
     case ID:
         Expression();
+        while(isgood== false)
+        {
+
         if(laToken->getSymbolName() == SYM_RIGHTARROW)
         {
             match(laToken->getSymbolName());
             StatementPart();
+            isgood=true;
         }
         else
         {
@@ -1448,8 +1588,9 @@ void Parser::GuardedCommand()
         case SYM_SEMICOLON:
             return;
         default:
-            Error();
-            GuardedCommand();
+            Error(__func__, laToken->getSymbolName());
+            //GuardedCommand();
+        }
         }
         }
         break;
@@ -1466,7 +1607,7 @@ void Parser::GuardedCommand()
         case SYM_SEMICOLON:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             GuardedCommand();
         }
         break;
@@ -1502,7 +1643,7 @@ void Parser::GuardedCommandList()
         case SYM_SEMICOLON:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             GuardedCommandList();
         }
     }
@@ -1537,7 +1678,7 @@ void Parser::GuardedCommandListA()
         case SYM_SEMICOLON:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             GuardedCommandListA();
         }
     }
@@ -1577,7 +1718,7 @@ void Parser::Expression()
         case SYM_RIGHTSQUARE:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             Expression();
         }
         break;
@@ -1620,7 +1761,7 @@ void Parser::ExpressionA()
         case SYM_RIGHTSQUARE:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             ExpressionA();
         }
     }
@@ -1660,7 +1801,7 @@ void Parser::PrimaryOperator()
         case ID:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             PrimaryOperator();
         }
     }
@@ -1703,7 +1844,7 @@ void Parser::PrimaryExpression()
 
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             PrimaryExpression();
         }
     }
@@ -1750,7 +1891,7 @@ void Parser::PrimaryExpressionA()
         case SYM_RIGHTARROW:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             PrimaryExpressionA();
         }
         break;
@@ -1796,7 +1937,7 @@ void Parser::RelationalOperator()
         case SYM_LEFTPAREN:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             RelationalOperator();
         }
         break;
@@ -1867,7 +2008,7 @@ void Parser::SimpleExpressionA()
         case SYM_EQUAL:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             SimpleExpressionA();
         }//follow set : < > = ^ | , ) ] ; ->
     }
@@ -1920,7 +2061,7 @@ void Parser::SimpleExpressionB()
         case SYM_EQUAL:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             SimpleExpressionB();
         }
         break;
@@ -1963,7 +2104,7 @@ void Parser::AddingOperator()
         case SYM_MINUS:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             AddingOperator();
         }
     }//follow set : + - < > = ^ | , ) ] ;
@@ -2010,7 +2151,7 @@ void Parser::Term()
         case SYM_MINUS:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             Term();
         }
     }
@@ -2067,7 +2208,7 @@ void Parser::TermA()
         case SYM_MINUS:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             TermA();
         }
     }
@@ -2090,11 +2231,22 @@ void Parser::Factor()
     case ID:
         VariableAccess();
         break;
+    case SYM_NOT:
+        match(laToken->getSymbolName());
+        Factor();
+        break;
     case SYM_LEFTPAREN:
         match(laToken->getSymbolName());
         Expression();
+        bool isgood = false;
+        while(isgood == false)
+        {
+
         if(laToken->getSymbolName() == SYM_RIGHTPAREN)
+        {
             match(laToken->getSymbolName());
+            isgood= true;
+        }
         else
         {
             switch(laToken->getSymbolName())
@@ -2123,14 +2275,11 @@ void Parser::Factor()
         case SYM_MODULO:
             return;
         default:
-            Error();
-            Factor();
+            Error(__func__, laToken->getSymbolName());
+            //Factor();
         }
         }
-        break;
-    case SYM_NOT:
-        match(laToken->getSymbolName());
-        Factor();
+        }
         break;
 
     }
@@ -2179,7 +2328,7 @@ void Parser::MultiplyingOperator()
         case ID:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             MultiplyingOperator();
         }
     }
@@ -2190,15 +2339,19 @@ void Parser::MultiplyingOperator()
 void Parser::IndexedSelector()
 {
     cout << "IndexedSelector \n";
-
+    bool isgood = false;
     switch(laToken->getSymbolName())
     {
     case SYM_LEFTSQUARE:
         match(laToken->getSymbolName());
         Expression();
+        while(isgood == false)
+        {
+
         if(laToken->getSymbolName() == SYM_RIGHTSQUARE)
         {
             match(laToken->getSymbolName());
+            isgood==true;
         }
         else
         {
@@ -2229,8 +2382,9 @@ void Parser::IndexedSelector()
         case SYM_COMMA:
             return;
         default:
-            Error();
-            IndexedSelector();
+            Error(__func__, laToken->getSymbolName());
+            //IndexedSelector();
+        }
         }
         }
         break;
@@ -2279,7 +2433,7 @@ void Parser::IndexedSelector()
         case SYM_COMMA:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             IndexedSelector();
         }
     }
@@ -2329,7 +2483,7 @@ void Parser::Constant()
         case SYM_MODULO:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             Constant();
         }
     }
@@ -2374,7 +2528,7 @@ void Parser::BooleanSymbol()
         case SYM_MODULO:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             BooleanSymbol();
         }
     }
@@ -2415,7 +2569,7 @@ void Parser::Numeral()
         case SYM_MODULO:
             return;
         default:
-            Error();
+            Error(__func__, laToken->getSymbolName());
             Numeral();
         }
     }
@@ -2489,9 +2643,22 @@ void Parser::Error()
     cout << "Got new token : " << SymbolTypeString[laToken->getSymbolName() - 256] << endl;
 }
 
-void Parser::Error(Symbol seen, Symbol expected)
+void Parser::Error(const char *funcname, Symbol seen)
 {
+    cout << "\nError in " << funcname << " found unexpected symbol " << SymbolTypeString[seen-256] << "."<< endl;
 
+    errcount++;
+
+    laToken = scptr->getToken();
+    if (laToken == nullptr)
+    {
+        while(laToken == nullptr)
+        {
+            laToken = scptr->getToken();
+        }
+
+    }
+    cout << "Got new token : " << SymbolTypeString[laToken->getSymbolName() - 256] << endl;
 }
 
 void Parser::match(Symbol sym)
