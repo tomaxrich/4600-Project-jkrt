@@ -47,14 +47,14 @@ int Parser::parse()
         return errcount;
     }
 
-    //while(laToken->getSymbolName() != SYM_EOF)
-    //{
-    //if(laToken->getSymbolName() == SYM_EOF)
-  //  {
-    return errcount;
-   // }
-  //  Error();
-  //  }
+    while(laToken->getSymbolName() != SYM_EOF)
+    {
+        if(laToken->getSymbolName() == SYM_EOF)
+        {
+            return errcount;
+        }
+        Error();
+    }
 
 }
 
@@ -87,7 +87,7 @@ void Parser::Program()
         match(laToken->getSymbolName());
     else
     {
-         switch(laToken->getSymbolName())
+        switch(laToken->getSymbolName())
         {
         case SYM_EOF :
             return;
@@ -143,17 +143,17 @@ void Parser::Block()
         else
         {
             switch(laToken->getSymbolName())
-        {
-        case SYM_EOF :
-        //case SYM_SEMICOLON :
-        case SYM_PERIOD :
-            cout << laToken->getSymbolName() << " is in the stopset of " << __func__ << " returning up a level.";
-            return;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            Block();
+            {
+            case SYM_EOF :
+            //case SYM_SEMICOLON :
+            case SYM_PERIOD :
+                cout << laToken->getSymbolName() << " is in the stopset of " << __func__ << " returning up a level.";
+                return;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                Block();
 
-        }
+            }
         }
     }
     else
@@ -224,7 +224,7 @@ void Parser::DefinitionPart()
     }
     else
     {
-         switch(laToken->getSymbolName())
+        switch(laToken->getSymbolName())
         {
         case SYM_EOF :
         case SYM_PERIOD :
@@ -269,7 +269,7 @@ void Parser::StatementPart()
     case KW_END:
         return;
     default:
-         switch(laToken->getSymbolName())
+        switch(laToken->getSymbolName())
         {
         case SYM_EOF :
         case SYM_PERIOD :
@@ -288,30 +288,30 @@ void Parser::StatementPart()
     while(isgood ==false)
     {
 
-    if(laToken->getSymbolName() == SYM_SEMICOLON)
-    {
-        match(laToken->getSymbolName());
-        StatementPart();
-        isgood = true;
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
+        if(laToken->getSymbolName() == SYM_SEMICOLON)
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case SYM_GUARD :
-        case KW_FI :
-        case KW_IF:
-        case KW_OD:
-        case KW_END:
-            return;
+            match(laToken->getSymbolName());
+            StatementPart();
             isgood = true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //StatementPart();
         }
-    }
+        else
+        {
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case SYM_GUARD :
+            case KW_FI :
+            case KW_IF:
+            case KW_OD:
+            case KW_END:
+                return;
+                isgood = true;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                //StatementPart();
+            }
+        }
     }
 
 }
@@ -375,74 +375,74 @@ void Parser::ConstantDefinition()
     {
 
 
-    if(laToken->getSymbolName() == KW_CONST)
-    {
-        match(laToken->getSymbolName());
-        isgood = true;
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
+        if(laToken->getSymbolName() == KW_CONST)
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case KW_SKIP :
-        case KW_READ :
-        case KW_WRITE:
-        case KW_CALL:
-        case KW_IF:
-        case KW_DO:
-        case ID:
-        case KW_END:
-        case KW_CONST :
-        case KW_PROC :
-        case KW_INTEGER:
-        case KW_BOOLEAN:
-        case SYM_SEMICOLON :
-            return;
-            isgood=true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //ConstantDefinition();
+            match(laToken->getSymbolName());
+            isgood = true;
         }
-    }
+        else
+        {
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case KW_SKIP :
+            case KW_READ :
+            case KW_WRITE:
+            case KW_CALL:
+            case KW_IF:
+            case KW_DO:
+            case ID:
+            case KW_END:
+            case KW_CONST :
+            case KW_PROC :
+            case KW_INTEGER:
+            case KW_BOOLEAN:
+            case SYM_SEMICOLON :
+                return;
+                isgood=true;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                //ConstantDefinition();
+            }
+        }
     }
 
     //const name
     isgood = false;
     while(isgood == false)
     {
-    if(laToken->getSymbolName() == ID)
-    {
-        ConstantName();
-        isgood=true;
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
+        if(laToken->getSymbolName() == ID)
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case KW_SKIP :
-        case KW_READ :
-        case KW_WRITE:
-        case KW_CALL:
-        case KW_IF:
-        case KW_DO:
-        case ID:
-        case KW_END:
-        case KW_CONST :
-        case KW_PROC :
-        case KW_INTEGER:
-        case KW_BOOLEAN:
-        case SYM_SEMICOLON :
-            return;
-            isgood = true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //ConstantDefinition();
+            ConstantName();
+            isgood=true;
         }
-    }
+        else
+        {
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case KW_SKIP :
+            case KW_READ :
+            case KW_WRITE:
+            case KW_CALL:
+            case KW_IF:
+            case KW_DO:
+            case ID:
+            case KW_END:
+            case KW_CONST :
+            case KW_PROC :
+            case KW_INTEGER:
+            case KW_BOOLEAN:
+            case SYM_SEMICOLON :
+                return;
+                isgood = true;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                //ConstantDefinition();
+            }
+        }
     }
 
     isgood = false;
@@ -450,75 +450,75 @@ void Parser::ConstantDefinition()
     while(isgood == false)
     {
 
-    if(laToken->getSymbolName() == SYM_EQUAL)
-    {
-        match(laToken->getSymbolName());
-        isgood = true;
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
+        if(laToken->getSymbolName() == SYM_EQUAL)
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case KW_SKIP :
-        case KW_READ :
-        case KW_WRITE:
-        case KW_CALL:
-        case KW_IF:
-        case KW_DO:
-        case ID:
-        case KW_END:
-        case KW_CONST :
-        case KW_PROC :
-        case KW_INTEGER:
-        case KW_BOOLEAN:
-        case SYM_SEMICOLON :
-            return;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //ConstantDefinition();
+            match(laToken->getSymbolName());
+            isgood = true;
         }
-    }
+        else
+        {
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case KW_SKIP :
+            case KW_READ :
+            case KW_WRITE:
+            case KW_CALL:
+            case KW_IF:
+            case KW_DO:
+            case ID:
+            case KW_END:
+            case KW_CONST :
+            case KW_PROC :
+            case KW_INTEGER:
+            case KW_BOOLEAN:
+            case SYM_SEMICOLON :
+                return;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                //ConstantDefinition();
+            }
+        }
     }
     //constant
     isgood = false;
     while(isgood == false)
     {
-    switch(laToken->getSymbolName())
-    {
-    case NUMERAL:
-    case KW_FALSE:
-    case KW_TRUE:
-    case ID:
-        Constant();
-        isgood = true;
-        break;
-    default:
-       switch(laToken->getSymbolName())
+        switch(laToken->getSymbolName())
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case KW_SKIP :
-        case KW_READ :
-        case KW_WRITE:
-        case KW_CALL:
-        case KW_IF:
-        case KW_DO:
+        case NUMERAL:
+        case KW_FALSE:
+        case KW_TRUE:
         case ID:
-        case KW_END:
-        case KW_CONST :
-        case KW_PROC :
-        case KW_INTEGER:
-        case KW_BOOLEAN:
-        case SYM_SEMICOLON :
-            return;
+            Constant();
             isgood = true;
+            break;
         default:
-            Error(__func__, laToken->getSymbolName());
-            //ConstantDefinition();
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case KW_SKIP :
+            case KW_READ :
+            case KW_WRITE:
+            case KW_CALL:
+            case KW_IF:
+            case KW_DO:
+            case ID:
+            case KW_END:
+            case KW_CONST :
+            case KW_PROC :
+            case KW_INTEGER:
+            case KW_BOOLEAN:
+            case SYM_SEMICOLON :
+                return;
+                isgood = true;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                //ConstantDefinition();
+            }
         }
-    }
     }
 }
 
@@ -532,73 +532,73 @@ void Parser::VariableDefinition()
     while(isgood == false)
     {
 
-    if(laToken->getSymbolName() == KW_INTEGER | laToken->getSymbolName() == KW_BOOLEAN)
-    {
-        TypeSymbol();
-        isgood = true;
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
+        if(laToken->getSymbolName() == KW_INTEGER | laToken->getSymbolName() == KW_BOOLEAN)
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case KW_SKIP :
-        case KW_READ :
-        case KW_WRITE:
-        case KW_CALL:
-        case KW_IF:
-        case KW_DO:
-        case ID:
-        case KW_END:
-        case KW_CONST :
-        case KW_PROC :
-        case KW_INTEGER:
-        case KW_BOOLEAN:
-        case SYM_SEMICOLON :
-            isgood= true;
-            return;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //VariableDefinition();
+            TypeSymbol();
+            isgood = true;
         }
-    }
+        else
+        {
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case KW_SKIP :
+            case KW_READ :
+            case KW_WRITE:
+            case KW_CALL:
+            case KW_IF:
+            case KW_DO:
+            case ID:
+            case KW_END:
+            case KW_CONST :
+            case KW_PROC :
+            case KW_INTEGER:
+            case KW_BOOLEAN:
+            case SYM_SEMICOLON :
+                isgood= true;
+                return;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                //VariableDefinition();
+            }
+        }
     }
     isgood = false;
     while(isgood == false)
     {
 
-   if(laToken->getSymbolName() == ID | laToken->getSymbolName() == KW_ARRAY)
-    {
-        isgood = true;
-        VariableDefinitionA();
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
+        if(laToken->getSymbolName() == ID | laToken->getSymbolName() == KW_ARRAY)
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case KW_SKIP :
-        case KW_READ :
-        case KW_WRITE:
-        case KW_CALL:
-        case KW_IF:
-        case KW_DO:
-        case ID:
-        case KW_END:
-        case KW_CONST :
-        case KW_PROC :
-        case KW_INTEGER:
-        case KW_BOOLEAN:
-        case SYM_SEMICOLON :
-            return;
             isgood = true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //VariableDefinition();
+            VariableDefinitionA();
         }
-    }
+        else
+        {
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case KW_SKIP :
+            case KW_READ :
+            case KW_WRITE:
+            case KW_CALL:
+            case KW_IF:
+            case KW_DO:
+            case ID:
+            case KW_END:
+            case KW_CONST :
+            case KW_PROC :
+            case KW_INTEGER:
+            case KW_BOOLEAN:
+            case SYM_SEMICOLON :
+                return;
+                isgood = true;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                //VariableDefinition();
+            }
+        }
     }
     //variable definition A
 
@@ -624,148 +624,148 @@ void Parser::VariableDefinitionA()
         while(isgood == false)
         {
 
-        if(laToken->getSymbolName() == ID)
-        {
-            VariableList();
-            isgood=true;
-        }
-        else
-        {
-            switch(laToken->getSymbolName())
-        {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case KW_SKIP :
-        case KW_READ :
-        case KW_WRITE:
-        case KW_CALL:
-        case KW_IF:
-        case KW_DO:
-        case ID:
-        case KW_END:
-        case KW_CONST :
-        case KW_PROC :
-        case KW_INTEGER:
-        case KW_BOOLEAN:
-        case SYM_SEMICOLON :
-            return;
-            isgood = true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //VariableDefinitionA();
-        }
-        }
+            if(laToken->getSymbolName() == ID)
+            {
+                VariableList();
+                isgood=true;
+            }
+            else
+            {
+                switch(laToken->getSymbolName())
+                {
+                case SYM_EOF :
+                case SYM_PERIOD :
+                case KW_SKIP :
+                case KW_READ :
+                case KW_WRITE:
+                case KW_CALL:
+                case KW_IF:
+                case KW_DO:
+                case ID:
+                case KW_END:
+                case KW_CONST :
+                case KW_PROC :
+                case KW_INTEGER:
+                case KW_BOOLEAN:
+                case SYM_SEMICOLON :
+                    return;
+                    isgood = true;
+                default:
+                    Error(__func__, laToken->getSymbolName());
+                    //VariableDefinitionA();
+                }
+            }
         }
         isgood = false;
         while(isgood == false)
         {
 
-        if(laToken->getSymbolName() == SYM_LEFTSQUARE)
-        {
-            match(laToken->getSymbolName());
-            isgood=true;
-        }
-        else
-        {
-           switch(laToken->getSymbolName())
-        {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case KW_SKIP :
-        case KW_READ :
-        case KW_WRITE:
-        case KW_CALL:
-        case KW_IF:
-        case KW_DO:
-        case ID:
-        case KW_END:
-        case KW_CONST :
-        case KW_PROC :
-        case KW_INTEGER:
-        case KW_BOOLEAN:
-        case SYM_SEMICOLON :
-            return;
-            isgood = true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //VariableDefinitionA();
-        }
-        }
+            if(laToken->getSymbolName() == SYM_LEFTSQUARE)
+            {
+                match(laToken->getSymbolName());
+                isgood=true;
+            }
+            else
+            {
+                switch(laToken->getSymbolName())
+                {
+                case SYM_EOF :
+                case SYM_PERIOD :
+                case KW_SKIP :
+                case KW_READ :
+                case KW_WRITE:
+                case KW_CALL:
+                case KW_IF:
+                case KW_DO:
+                case ID:
+                case KW_END:
+                case KW_CONST :
+                case KW_PROC :
+                case KW_INTEGER:
+                case KW_BOOLEAN:
+                case SYM_SEMICOLON :
+                    return;
+                    isgood = true;
+                default:
+                    Error(__func__, laToken->getSymbolName());
+                    //VariableDefinitionA();
+                }
+            }
         }
         isgood= false;
         while(isgood==false)
         {
 
-        switch(laToken->getSymbolName())
-        {
-        case NUMERAL:
-        case KW_TRUE:
-        case KW_FALSE:
-        case ID:
-            Constant();
-            isgood = true;
-            break;
-        default:
             switch(laToken->getSymbolName())
-        {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case KW_SKIP :
-        case KW_READ :
-        case KW_WRITE:
-        case KW_CALL:
-        case KW_IF:
-        case KW_DO:
-        case ID:
-        case KW_END:
-        case KW_CONST :
-        case KW_PROC :
-        case KW_INTEGER:
-        case KW_BOOLEAN:
-        case SYM_SEMICOLON :
-            return;
-            isgood = true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //VariableDefinitionA();
-        }
-            break;
-        }
+            {
+            case NUMERAL:
+            case KW_TRUE:
+            case KW_FALSE:
+            case ID:
+                Constant();
+                isgood = true;
+                break;
+            default:
+                switch(laToken->getSymbolName())
+                {
+                case SYM_EOF :
+                case SYM_PERIOD :
+                case KW_SKIP :
+                case KW_READ :
+                case KW_WRITE:
+                case KW_CALL:
+                case KW_IF:
+                case KW_DO:
+                case ID:
+                case KW_END:
+                case KW_CONST :
+                case KW_PROC :
+                case KW_INTEGER:
+                case KW_BOOLEAN:
+                case SYM_SEMICOLON :
+                    return;
+                    isgood = true;
+                default:
+                    Error(__func__, laToken->getSymbolName());
+                    //VariableDefinitionA();
+                }
+                break;
+            }
         }
         isgood= false;
         while(isgood==false)
         {
-        if(laToken->getSymbolName() == SYM_RIGHTSQUARE)
-        {
-            match(laToken->getSymbolName());
-            isgood = true;
-        }
-        else
-        {
-            switch(laToken->getSymbolName())
-        {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case KW_SKIP :
-        case KW_READ :
-        case KW_WRITE:
-        case KW_CALL:
-        case KW_IF:
-        case KW_DO:
-        case ID:
-        case KW_END:
-        case KW_CONST :
-        case KW_PROC :
-        case KW_INTEGER:
-        case KW_BOOLEAN:
-        case SYM_SEMICOLON :
-            return;
-            isgood=true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //VariableDefinitionA();
-        }
-        }
+            if(laToken->getSymbolName() == SYM_RIGHTSQUARE)
+            {
+                match(laToken->getSymbolName());
+                isgood = true;
+            }
+            else
+            {
+                switch(laToken->getSymbolName())
+                {
+                case SYM_EOF :
+                case SYM_PERIOD :
+                case KW_SKIP :
+                case KW_READ :
+                case KW_WRITE:
+                case KW_CALL:
+                case KW_IF:
+                case KW_DO:
+                case ID:
+                case KW_END:
+                case KW_CONST :
+                case KW_PROC :
+                case KW_INTEGER:
+                case KW_BOOLEAN:
+                case SYM_SEMICOLON :
+                    return;
+                    isgood=true;
+                default:
+                    Error(__func__, laToken->getSymbolName());
+                    //VariableDefinitionA();
+                }
+            }
         }
     }
     else
@@ -948,7 +948,7 @@ void Parser::ProcedureDefinition()
             return;
         default:
             Error(__func__, laToken->getSymbolName());
-        ProcedureDefinition();
+            ProcedureDefinition();
         }
     }
 }
@@ -1104,94 +1104,94 @@ void Parser::AssignmentStatement()
     while(isgood==false)
     {
 
-    if(laToken->getSymbolName() == ID)
-    {
-        VariableAccessList();
-        isgood=true;
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
+        if(laToken->getSymbolName() == ID)
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case SYM_GUARD :
-        case KW_FI :
-        case KW_IF:
-        case KW_OD:
-        case KW_END:
-        case SYM_SEMICOLON:
-            return;
+            VariableAccessList();
             isgood=true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //AssignmentStatement();
         }
-    }
+        else
+        {
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case SYM_GUARD :
+            case KW_FI :
+            case KW_IF:
+            case KW_OD:
+            case KW_END:
+            case SYM_SEMICOLON:
+                return;
+                isgood=true;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                //AssignmentStatement();
+            }
+        }
     }
     //assignment symbol
     isgood = false;
     while(isgood == false)
     {
 
-    if(laToken->getSymbolName() == SYM_ASSIGNMENT)
-    {
-        match(laToken->getSymbolName());
-        isgood = true;
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
+        if(laToken->getSymbolName() == SYM_ASSIGNMENT)
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case SYM_GUARD :
-        case KW_FI :
-        case KW_IF:
-        case KW_OD:
-        case KW_END:
-        case SYM_SEMICOLON:
-            return;
+            match(laToken->getSymbolName());
             isgood = true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //AssignmentStatement();
         }
-    }
+        else
+        {
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case SYM_GUARD :
+            case KW_FI :
+            case KW_IF:
+            case KW_OD:
+            case KW_END:
+            case SYM_SEMICOLON:
+                return;
+                isgood = true;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                //AssignmentStatement();
+            }
+        }
     }
     //Expression - ( ~ false true number letter
     isgood = false;
     while(isgood == false)
     {
 
-    switch(laToken->getSymbolName())
-    {
-    case SYM_MINUS:
-    case SYM_LEFTPAREN:
-    case KW_FALSE:
-    case KW_TRUE:
-    case NUMERAL:
-    case ID:
-        ExpressionList();
-        isgood=true;
-        break;
-    default:
         switch(laToken->getSymbolName())
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case SYM_GUARD :
-        case KW_FI :
-        case KW_IF:
-        case KW_OD:
-        case KW_END:
-        case SYM_SEMICOLON:
-            return;
+        case SYM_MINUS:
+        case SYM_LEFTPAREN:
+        case KW_FALSE:
+        case KW_TRUE:
+        case NUMERAL:
+        case ID:
+            ExpressionList();
+            isgood=true;
+            break;
         default:
-            Error(__func__, laToken->getSymbolName());
-            //AssignmentStatement();
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case SYM_GUARD :
+            case KW_FI :
+            case KW_IF:
+            case KW_OD:
+            case KW_END:
+            case SYM_SEMICOLON:
+                return;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                //AssignmentStatement();
+            }
         }
-    }
     }
 
 }
@@ -1205,58 +1205,58 @@ void Parser::ProcedureStatement()
     while(isgood == false)
     {
 
-    if(laToken->getSymbolName() == KW_CALL)
-    {
-        match(laToken->getSymbolName());
-        isgood = true;
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
+        if(laToken->getSymbolName() == KW_CALL)
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case SYM_GUARD :
-        case KW_FI :
-        case KW_IF:
-        case KW_OD:
-        case KW_END:
-        case SYM_SEMICOLON:
-            return;
+            match(laToken->getSymbolName());
             isgood = true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-     //       ProcedureStatement();
         }
-    }
+        else
+        {
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case SYM_GUARD :
+            case KW_FI :
+            case KW_IF:
+            case KW_OD:
+            case KW_END:
+            case SYM_SEMICOLON:
+                return;
+                isgood = true;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                //       ProcedureStatement();
+            }
+        }
     }
     isgood = false;
     while(isgood == false)
     {
 
-    if(laToken->getSymbolName() == ID)
-    {
-        ProcedureName();
-        isgood = true;
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
+        if(laToken->getSymbolName() == ID)
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case SYM_GUARD :
-        case KW_FI :
-        case KW_IF:
-        case KW_OD:
-        case KW_END:
-        case SYM_SEMICOLON:
-            return;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //ProcedureStatement();
+            ProcedureName();
+            isgood = true;
         }
-    }
+        else
+        {
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case SYM_GUARD :
+            case KW_FI :
+            case KW_IF:
+            case KW_OD:
+            case KW_END:
+            case SYM_SEMICOLON:
+                return;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                //ProcedureStatement();
+            }
+        }
     }
 }
 
@@ -1269,30 +1269,30 @@ void Parser::IfStatement()
     while(isgood == false)
     {
 
-    if(laToken->getSymbolName() == KW_IF)
-    {
-        match(laToken->getSymbolName());
-        isgood = true;
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
+        if(laToken->getSymbolName() == KW_IF)
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case SYM_GUARD :
-        case KW_FI :
-        case KW_IF:
-        case KW_OD:
-        case KW_END:
-        case SYM_SEMICOLON:
-            return;
+            match(laToken->getSymbolName());
             isgood = true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-     //       IfStatement();
         }
-    }
+        else
+        {
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case SYM_GUARD :
+            case KW_FI :
+            case KW_IF:
+            case KW_OD:
+            case KW_END:
+            case SYM_SEMICOLON:
+                return;
+                isgood = true;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                //       IfStatement();
+            }
+        }
     }
     ///add checks for this (expression)
     GuardedCommandList();
@@ -1300,30 +1300,30 @@ void Parser::IfStatement()
     while(isgood == false)
     {
 
-    if(laToken->getSymbolName() == KW_FI)
-    {
-        match(laToken->getSymbolName());
-        isgood = true;
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
+        if(laToken->getSymbolName() == KW_FI)
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case SYM_GUARD :
-        case KW_FI :
-        case KW_IF:
-        case KW_OD:
-        case KW_END:
-        case SYM_SEMICOLON:
-            return;
+            match(laToken->getSymbolName());
             isgood = true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //IfStatement();
         }
-    }
+        else
+        {
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case SYM_GUARD :
+            case KW_FI :
+            case KW_IF:
+            case KW_OD:
+            case KW_END:
+            case SYM_SEMICOLON:
+                return;
+                isgood = true;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                //IfStatement();
+            }
+        }
     }
 }
 
@@ -1336,30 +1336,30 @@ void Parser::DoStatement()
     while(isgood == false)
     {
 
-    if(laToken->getSymbolName() == KW_DO)
-    {
-        match(laToken->getSymbolName());
-        isgood = true;
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
+        if(laToken->getSymbolName() == KW_DO)
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case SYM_GUARD :
-        case KW_FI :
-        case KW_IF:
-        case KW_OD:
-        case KW_END:
-        case SYM_SEMICOLON:
-            return;
-            isgood=true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-           // DoStatement();
+            match(laToken->getSymbolName());
+            isgood = true;
         }
-    }
+        else
+        {
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case SYM_GUARD :
+            case KW_FI :
+            case KW_IF:
+            case KW_OD:
+            case KW_END:
+            case SYM_SEMICOLON:
+                return;
+                isgood=true;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                // DoStatement();
+            }
+        }
     }
 
     GuardedCommandList();
@@ -1368,30 +1368,30 @@ void Parser::DoStatement()
     while(isgood == false)
     {
 
-    if(laToken->getSymbolName() == KW_OD)
-    {
-        match(laToken->getSymbolName());
-        isgood=true;
-    }
-    else
-    {
-        switch(laToken->getSymbolName())
+        if(laToken->getSymbolName() == KW_OD)
         {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case SYM_GUARD :
-        case KW_FI :
-        case KW_IF:
-        case KW_OD:
-        case KW_END:
-        case SYM_SEMICOLON:
-            return;
+            match(laToken->getSymbolName());
             isgood=true;
-        default:
-            Error(__func__, laToken->getSymbolName());
-           // DoStatement();
         }
-    }
+        else
+        {
+            switch(laToken->getSymbolName())
+            {
+            case SYM_EOF :
+            case SYM_PERIOD :
+            case SYM_GUARD :
+            case KW_FI :
+            case KW_IF:
+            case KW_OD:
+            case KW_END:
+            case SYM_SEMICOLON:
+                return;
+                isgood=true;
+            default:
+                Error(__func__, laToken->getSymbolName());
+                // DoStatement();
+            }
+        }
     }
 }
 
@@ -1568,30 +1568,30 @@ void Parser::GuardedCommand()
         while(isgood== false)
         {
 
-        if(laToken->getSymbolName() == SYM_RIGHTARROW)
-        {
-            match(laToken->getSymbolName());
-            StatementPart();
-            isgood=true;
-        }
-        else
-        {
-            switch(laToken->getSymbolName())
-        {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case SYM_GUARD :
-        case KW_FI :
-        case KW_IF:
-        case KW_OD:
-        case KW_END:
-        case SYM_SEMICOLON:
-            return;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //GuardedCommand();
-        }
-        }
+            if(laToken->getSymbolName() == SYM_RIGHTARROW)
+            {
+                match(laToken->getSymbolName());
+                StatementPart();
+                isgood=true;
+            }
+            else
+            {
+                switch(laToken->getSymbolName())
+                {
+                case SYM_EOF :
+                case SYM_PERIOD :
+                case SYM_GUARD :
+                case KW_FI :
+                case KW_IF:
+                case KW_OD:
+                case KW_END:
+                case SYM_SEMICOLON:
+                    return;
+                default:
+                    Error(__func__, laToken->getSymbolName());
+                    //GuardedCommand();
+                }
+            }
         }
         break;
     default:
@@ -1624,14 +1624,14 @@ void Parser::GuardedCommandList()
 
     switch(laToken->getSymbolName())
     {
-	case SYM_GUARD:
-		GuardedCommandListA();
-		break;
-	case KW_FI:
-	case KW_OD:
-		return;
-	default:
-		switch(laToken->getSymbolName())
+    case SYM_GUARD:
+        GuardedCommandListA();
+        break;
+    case KW_FI:
+    case KW_OD:
+        return;
+    default:
+        switch(laToken->getSymbolName())
         {
         case SYM_EOF :
         case SYM_PERIOD :
@@ -1870,7 +1870,7 @@ void Parser::PrimaryExpressionA()
     case SYM_RIGHTPAREN:
     case SYM_RIGHTSQUARE:
     case SYM_SEMICOLON:
-	case SYM_RIGHTARROW:
+    case SYM_RIGHTARROW:
         return;
     default:
         switch(laToken->getSymbolName())
@@ -1975,17 +1975,17 @@ void Parser::SimpleExpressionA()
         Term();
         SimpleExpressionB();
         break;
-	case SYM_LESSTHAN:
-	case SYM_GREATERTHAN:
-	case SYM_EQUAL:
-	case SYM_AND:
-	case SYM_OR:
-	case SYM_COMMA:
-	case SYM_RIGHTPAREN:
-	case SYM_RIGHTSQUARE:
-	case SYM_SEMICOLON:
-	case SYM_RIGHTARROW:
-		return;
+    case SYM_LESSTHAN:
+    case SYM_GREATERTHAN:
+    case SYM_EQUAL:
+    case SYM_AND:
+    case SYM_OR:
+    case SYM_COMMA:
+    case SYM_RIGHTPAREN:
+    case SYM_RIGHTSQUARE:
+    case SYM_SEMICOLON:
+    case SYM_RIGHTARROW:
+        return;
     default:
         switch(laToken->getSymbolName())
         {
@@ -2034,8 +2034,8 @@ void Parser::SimpleExpressionB()
     case SYM_OR:
     case SYM_COMMA:
     case SYM_RIGHTPAREN:
-	case SYM_RIGHTARROW:
-	case SYM_RIGHTSQUARE:
+    case SYM_RIGHTARROW:
+    case SYM_RIGHTSQUARE:
     case SYM_LEFTPAREN:
     case SYM_SEMICOLON:
         return;
@@ -2179,7 +2179,7 @@ void Parser::TermA()
     case SYM_AND:
     case SYM_OR:
     case SYM_COMMA:
-	case SYM_RIGHTARROW:
+    case SYM_RIGHTARROW:
     case SYM_RIGHTPAREN:
     case SYM_RIGHTSQUARE:
     case SYM_SEMICOLON:
@@ -2242,43 +2242,43 @@ void Parser::Factor()
         while(isgood == false)
         {
 
-        if(laToken->getSymbolName() == SYM_RIGHTPAREN)
-        {
-            match(laToken->getSymbolName());
-            isgood= true;
-        }
-        else
-        {
-            switch(laToken->getSymbolName())
-        {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case SYM_GUARD :
-        case KW_FI :
-        case KW_IF:
-        case KW_OD:
-        case KW_END:
-        case SYM_SEMICOLON:
-        case SYM_RIGHTPAREN:
-        case SYM_COMMA:
-        case SYM_RIGHTSQUARE:
-        case SYM_AND:
-        case SYM_OR:
-        case SYM_RIGHTARROW:
-        case SYM_LESSTHAN:
-        case SYM_GREATERTHAN:
-        case SYM_EQUAL:
-        case SYM_PLUS:
-        case SYM_MINUS:
-        case SYM_MULTIPLY:
-        case SYM_DIVIDE:
-        case SYM_MODULO:
-            return;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //Factor();
-        }
-        }
+            if(laToken->getSymbolName() == SYM_RIGHTPAREN)
+            {
+                match(laToken->getSymbolName());
+                isgood= true;
+            }
+            else
+            {
+                switch(laToken->getSymbolName())
+                {
+                case SYM_EOF :
+                case SYM_PERIOD :
+                case SYM_GUARD :
+                case KW_FI :
+                case KW_IF:
+                case KW_OD:
+                case KW_END:
+                case SYM_SEMICOLON:
+                case SYM_RIGHTPAREN:
+                case SYM_COMMA:
+                case SYM_RIGHTSQUARE:
+                case SYM_AND:
+                case SYM_OR:
+                case SYM_RIGHTARROW:
+                case SYM_LESSTHAN:
+                case SYM_GREATERTHAN:
+                case SYM_EQUAL:
+                case SYM_PLUS:
+                case SYM_MINUS:
+                case SYM_MULTIPLY:
+                case SYM_DIVIDE:
+                case SYM_MODULO:
+                    return;
+                default:
+                    Error(__func__, laToken->getSymbolName());
+                    //Factor();
+                }
+            }
         }
         break;
 
@@ -2348,44 +2348,44 @@ void Parser::IndexedSelector()
         while(isgood == false)
         {
 
-        if(laToken->getSymbolName() == SYM_RIGHTSQUARE)
-        {
-            match(laToken->getSymbolName());
-            isgood==true;
-        }
-        else
-        {
-            switch(laToken->getSymbolName())
-        {
-        case SYM_EOF :
-        case SYM_PERIOD :
-        case SYM_GUARD :
-        case KW_FI :
-        case KW_IF:
-        case KW_OD:
-        case KW_END:
-        case SYM_SEMICOLON:
-        case SYM_ASSIGNMENT:
-        case SYM_MULTIPLY:
-        case SYM_DIVIDE:
-        case SYM_MODULO:
-        case SYM_PLUS:
-        case SYM_MINUS:
-        case SYM_LESSTHAN:
-        case SYM_GREATERTHAN:
-        case SYM_EQUAL:
-        case SYM_AND:
-        case SYM_OR:
-        case SYM_RIGHTARROW:
-        case SYM_RIGHTPAREN:
-        case SYM_RIGHTSQUARE:
-        case SYM_COMMA:
-            return;
-        default:
-            Error(__func__, laToken->getSymbolName());
-            //IndexedSelector();
-        }
-        }
+            if(laToken->getSymbolName() == SYM_RIGHTSQUARE)
+            {
+                match(laToken->getSymbolName());
+                isgood==true;
+            }
+            else
+            {
+                switch(laToken->getSymbolName())
+                {
+                case SYM_EOF :
+                case SYM_PERIOD :
+                case SYM_GUARD :
+                case KW_FI :
+                case KW_IF:
+                case KW_OD:
+                case KW_END:
+                case SYM_SEMICOLON:
+                case SYM_ASSIGNMENT:
+                case SYM_MULTIPLY:
+                case SYM_DIVIDE:
+                case SYM_MODULO:
+                case SYM_PLUS:
+                case SYM_MINUS:
+                case SYM_LESSTHAN:
+                case SYM_GREATERTHAN:
+                case SYM_EQUAL:
+                case SYM_AND:
+                case SYM_OR:
+                case SYM_RIGHTARROW:
+                case SYM_RIGHTPAREN:
+                case SYM_RIGHTSQUARE:
+                case SYM_COMMA:
+                    return;
+                default:
+                    Error(__func__, laToken->getSymbolName());
+                    //IndexedSelector();
+                }
+            }
         }
         break;
     case SYM_MULTIPLY:
